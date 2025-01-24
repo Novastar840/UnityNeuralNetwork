@@ -220,10 +220,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0
@@ -461,10 +461,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0
@@ -497,7 +497,7 @@ GameObject:
   - component: {fileID: 744337416945534462}
   - component: {fileID: 426622011957821972}
   m_Layer: 0
-  m_Name: LeftFoor
+  m_Name: LeftFoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -700,10 +700,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0
@@ -781,6 +781,12 @@ MonoBehaviour:
   Body: {fileID: 3889806998094536167}
   InitData: {fileID: 11400000, guid: f34ac4a694f880d4bb7f9755b5a325bf, type: 2}
   SaveFile: {fileID: 11400000, guid: 8943e7a45d996bf449c4c2ac6ba519b8, type: 2}
+  RightLegHighJoint: {fileID: 6357024851249767586}
+  LeftLegHighJoint: {fileID: 5970698334458708398}
+  RightLegLowJoint: {fileID: 7052616303553778140}
+  LeftLegLowJoint: {fileID: 801236141756383159}
+  RightFootJoint: {fileID: 7434249239452970933}
+  LeftFootJoint: {fileID: 426622011957821972}
 --- !u!1 &6172034230242977382
 GameObject:
   m_ObjectHideFlags: 0
@@ -999,10 +1005,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0
@@ -1240,10 +1246,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0
@@ -1481,10 +1487,10 @@ ConfigurableJoint:
     useAcceleration: 0
   m_AngularYZDrive:
     serializedVersion: 4
-    positionSpring: 0
+    positionSpring: 10000
     positionDamper: 0
     maximumForce: 3.4028233e+38
-    useAcceleration: 0
+    useAcceleration: 1
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 0

@@ -42,7 +42,7 @@ public class NonInputNeuron : Neuron
         CalculateNeuronValue();
     }
 
-    public void CalculateNeuronValue()
+    public virtual void CalculateNeuronValue()
     {
         List<float> calculatedWeightValues = new List<float>();
         for (int i = 0; i < PreviousLayerNeuronValues.Length; i++)
@@ -51,6 +51,6 @@ public class NonInputNeuron : Neuron
             calculatedWeightValues.Add(result);
         }
 
-        Value = Tools.Sigmoid(Tools.GetTotalValue(calculatedWeightValues) + Bias);
+        SetNeuronValue(Tools.GetTotalValue(calculatedWeightValues) + Bias);
     }
 }

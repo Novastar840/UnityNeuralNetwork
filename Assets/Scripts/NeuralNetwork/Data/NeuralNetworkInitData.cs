@@ -5,6 +5,5 @@ public class NeuralNetworkInitData : ScriptableObject
 {
     public int InputCount;
     public int OutputCount;
-    public int HiddenLayerCount;
     public int[] HiddenLayerSizes;
 }

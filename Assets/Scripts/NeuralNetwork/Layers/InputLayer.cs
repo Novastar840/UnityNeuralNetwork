@@ -24,4 +24,9 @@ public class InputLayer : Layer
         }
         return values;
     }
+
+    public new InputNeuron[] GetNeurons()
+    {
+        return InputNeurons;
+    }
 }

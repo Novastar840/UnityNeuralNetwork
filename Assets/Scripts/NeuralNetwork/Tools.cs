@@ -28,4 +28,10 @@ public class Tools
         }
         return total;
     }
+
+    public static float ReLU(float value)
+    {
+        return Mathf.Max(0, value);
+    }
+
 }

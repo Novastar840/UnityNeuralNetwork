@@ -4,7 +4,7 @@ using UnityEngine;
 public class Layer
 {
     [SerializeField] private NonInputNeuron[] Neurons;
-    public Neuron[] GetNeurons()
+    public virtual Neuron[] GetNeurons()
     {
         return Neurons;
     }
