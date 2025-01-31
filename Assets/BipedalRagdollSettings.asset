@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InputCount: 20
   OutputCount: 24
-  HiddenLayerSizes: 20000000
+  HiddenLayerSizes: 200000001c00000014000000

@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 325320649}
   - component: {fileID: 325320648}
   - component: {fileID: 325320647}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -605,33 +605,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 426622011957821972, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
-      objectReference: {fileID: 0}
-    - target: {fileID: 801236141756383159, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
-      objectReference: {fileID: 0}
     - target: {fileID: 4213490359984510102, guid: ddcca256811b24d4bab948492b75c387, type: 3}
       propertyPath: m_Name
       value: Ragdoll
-      objectReference: {fileID: 0}
-    - target: {fileID: 5970698334458708398, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
-      objectReference: {fileID: 0}
-    - target: {fileID: 6357024851249767586, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
-      objectReference: {fileID: 0}
-    - target: {fileID: 7052616303553778140, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
-      objectReference: {fileID: 0}
-    - target: {fileID: 7434249239452970933, guid: ddcca256811b24d4bab948492b75c387, type: 3}
-      propertyPath: m_AngularYZDrive.positionSpring
-      value: 10000000
       objectReference: {fileID: 0}
     - target: {fileID: 7700262832329467234, guid: ddcca256811b24d4bab948492b75c387, type: 3}
       propertyPath: m_LocalPosition.x
@@ -639,7 +615,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7700262832329467234, guid: ddcca256811b24d4bab948492b75c387, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.27
+      value: 2.21
       objectReference: {fileID: 0}
     - target: {fileID: 7700262832329467234, guid: ddcca256811b24d4bab948492b75c387, type: 3}
       propertyPath: m_LocalPosition.z

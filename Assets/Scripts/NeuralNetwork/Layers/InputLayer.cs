@@ -11,6 +11,7 @@ public class InputLayer : Layer
         for (int i = 0; i < size; i++)
         {
             array[i] = new InputNeuron();
+            array[i].SetNeuronValue(Random.Range(-1f, 1f));
         }
         InputNeurons = array;
     }

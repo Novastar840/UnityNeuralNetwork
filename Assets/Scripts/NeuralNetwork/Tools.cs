@@ -34,4 +34,19 @@ public class Tools
         return Mathf.Max(0, value);
     }
 
+    public static T[] GetComponentsFromObjects<T>(params GameObject[] objects) where T : Component
+    {
+        List<T> components = new List<T>();
+
+        foreach (GameObject obj in objects)
+        {
+            T component = obj.GetComponent<T>();
+            if (component != null)
+            {
+                components.Add(component);
+            }
+        }
+
+        return components.ToArray();
+    }
 }

@@ -1,7 +1,6 @@
+using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
-using static UnityEditor.Rendering.CameraUI;
 
 public class RagdollController : MonoBehaviour
 {
@@ -35,6 +34,18 @@ public class RagdollController : MonoBehaviour
 
     private NeuralNetwork NeuralNetwork;
 
+    private Collider[] PositiveColliders;
+    private Collider[] NegativeColliders;
+
+    private NeuralTrainer Trainer;
+    private int CollisionCounter = 0;
+    private void Awake()
+    {
+        PositiveColliders = Tools.GetComponentsFromObjects<Collider>(LeftFoot, RightFoot);
+        NegativeColliders = Tools.GetComponentsFromObjects<Collider>(RightLegHigh, LeftLegHigh, LeftLegLow, RightLegLow, Body);
+        Trainer = GetComponent<NeuralTrainer>();
+    }
+
     private void Start()
     {
         NeuralNetwork = SaveFile.Load();
@@ -51,8 +62,6 @@ public class RagdollController : MonoBehaviour
         float[] inputs = NormalizeInputs(MakeInputList());
         NeuralNetwork.ProcessData(inputs);
         SetRagDollJoints(NeuralNetwork.GetOutputLayerData());
-        float[] outputs = NeuralNetwork.GetOutputLayerData();
-        Debug.Log($"Neural Network Outputs: {string.Join(", ", outputs)}");
     }
 
     private void UpdateBodyPositions()
@@ -121,8 +130,6 @@ public class RagdollController : MonoBehaviour
 
     private void SetRagDollJoints(float[] data)
     {
-        NormaliseOutput(ref data);
-
         int outputIterationIndex = 0;
         RightLegHighJoint.targetRotation = GetQuaternionFromNeuralOutput(ref data, ref outputIterationIndex);
         LeftLegHighJoint.targetRotation = GetQuaternionFromNeuralOutput(ref data, ref outputIterationIndex);
@@ -139,8 +146,41 @@ public class RagdollController : MonoBehaviour
         return rotation.normalized;
     }
 
-    private void NormaliseOutput(ref float[] data)
+    private void OnCollisionEnter(Collision other)
     {
+        var contacts = other.contacts;
+        foreach (var contactPoint in contacts)
+        {
+            foreach (Collider collider in NegativeColliders)
+            {
+                if (collider == contactPoint.thisCollider)
+                {
+                    Trainer.Fallen = true;
+                    Trainer.FeetOnGround = false;
+                }
+            }
 
+            foreach (Collider collider in PositiveColliders)
+            {
+                if (collider == contactPoint.thisCollider)
+                {
+                        Trainer.FeetOnGround = true;
+                }
+            }
+        }
+
+        CollisionCounter++;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        CollisionCounter--;
+
+        if (CollisionCounter <= 0)
+        {
+            CollisionCounter = 0; 
+            Trainer.Fallen = false; 
+            Trainer.FeetOnGround = false;
+        }
     }
 }
