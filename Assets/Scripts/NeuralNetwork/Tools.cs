@@ -49,4 +49,9 @@ public class Tools
 
         return components.ToArray();
     }
+
+    public static T[] MakeArray<T>(params T[] objects)
+    {
+        return objects;
+    }
 }

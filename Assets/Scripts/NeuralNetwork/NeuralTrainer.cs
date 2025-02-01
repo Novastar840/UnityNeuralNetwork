@@ -18,7 +18,6 @@ public class NeuralTrainer : MonoBehaviour
         if (FeetOnGround)
         {
             StandingTimer += Time.deltaTime;
-            Debug.Log(StandingTimer);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RagdollController : MonoBehaviour
@@ -11,6 +12,7 @@ public class RagdollController : MonoBehaviour
     [SerializeField] private GameObject RightFoot;
     [SerializeField] private GameObject LeftFoot;
     [SerializeField] private GameObject Body;
+    private GameObject[] BodyParts;
 
     [SerializeField] private NeuralNetworkInitData InitData;
     [SerializeField] private NeuralNetworkSave SaveFile;
@@ -38,7 +40,8 @@ public class RagdollController : MonoBehaviour
     private Collider[] NegativeColliders;
 
     private NeuralTrainer Trainer;
-    private int CollisionCounter = 0;
+    private int PositiveCollisionCounter = 0;
+    private int NegativeCollisionCounter = 0;
     private void Awake()
     {
         PositiveColliders = Tools.GetComponentsFromObjects<Collider>(LeftFoot, RightFoot);
@@ -48,6 +51,8 @@ public class RagdollController : MonoBehaviour
 
     private void Start()
     {
+        BodyParts = Tools.MakeArray(RightLegHigh, LeftLegHigh, LeftLegLow, RightLegLow, Body, LeftFoot, RightFoot);
+        SetupCollisionRelay(BodyParts);
         NeuralNetwork = SaveFile.Load();
         if (NeuralNetwork == null)
         {
@@ -148,38 +153,92 @@ public class RagdollController : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        var contacts = other.contacts;
-        foreach (var contactPoint in contacts)
-        {
-            foreach (Collider collider in NegativeColliders)
-            {
-                if (collider == contactPoint.thisCollider)
-                {
-                    Trainer.Fallen = true;
-                    Trainer.FeetOnGround = false;
-                }
-            }
-
-            foreach (Collider collider in PositiveColliders)
-            {
-                if (collider == contactPoint.thisCollider)
-                {
-                        Trainer.FeetOnGround = true;
-                }
-            }
-        }
-
-        CollisionCounter++;
+        CollisionEnter(other);
     }
 
     private void OnCollisionExit(Collision other)
     {
-        CollisionCounter--;
+       CollisionExit(other);
+    }
 
-        if (CollisionCounter <= 0)
+    public void CollisionEnter(Collision other)
+    {
+        Collider otherCollider = other.collider;
+
+        foreach (Collider collider in PositiveColliders)
         {
-            CollisionCounter = 0; 
-            Trainer.Fallen = false; 
+            if (collider == otherCollider)
+            {
+                PositiveCollisionCounter++;
+                return;
+            }
+        }
+
+        foreach (Collider collider in NegativeColliders)
+        {
+            if (collider == otherCollider)
+            {
+                NegativeCollisionCounter++;
+                return;
+            }
+        }
+        
+        UpdateStatusBooleans();
+    }
+
+    public void CollisionExit(Collision other)
+    {
+        Collider otherCollider = other.collider;
+
+        foreach (Collider collider in PositiveColliders)
+        {
+            if (collider == otherCollider)
+            {
+                PositiveCollisionCounter--;
+                return;
+            }
+        }
+
+        foreach (Collider collider in NegativeColliders)
+        {
+            if (collider == otherCollider)
+            {
+                NegativeCollisionCounter--;
+                return;
+            }
+        }
+        
+        UpdateStatusBooleans();
+    }
+
+    private void SetupCollisionRelay(GameObject[] objects)
+    {
+        foreach (GameObject gameObject in objects)
+        {
+            gameObject.AddComponent<CollisionRelay>();
+        }
+    }
+
+    private void UpdateStatusBooleans()
+    {
+        if (NegativeCollisionCounter <= 0 && PositiveCollisionCounter > 0)
+        {
+            Trainer.Fallen = false;
+            Trainer.FeetOnGround = true;
+        }
+        else if (NegativeCollisionCounter <= 0 && PositiveCollisionCounter <= 0)
+        {
+            Trainer.Fallen = false;
+            Trainer.FeetOnGround = false;
+        }
+        else if (NegativeCollisionCounter > 0 && PositiveCollisionCounter > 0)
+        {
+            Trainer.Fallen = true;
+            Trainer.FeetOnGround = true;
+        }
+        else
+        {
+            Trainer.Fallen = true;
             Trainer.FeetOnGround = false;
         }
     }
