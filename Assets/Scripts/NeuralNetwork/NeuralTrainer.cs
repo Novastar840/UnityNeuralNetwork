@@ -15,7 +15,7 @@ public class NeuralTrainer : MonoBehaviour
 
     private void Update()
     {
-        if (FeetOnGround)
+        if (!Fallen)
         {
             StandingTimer += Time.deltaTime;
         }
