@@ -5,18 +5,22 @@ public class InputLayer : Layer
 {
     [SerializeField] protected InputNeuron[] InputNeurons;
 
-    public void InitializeLayer(int size)
+    public InputNeuron[] GetNeurons()
     {
-        InputNeuron[] array = new InputNeuron[size];
-        for (int i = 0; i < size; i++)
-        {
-            array[i] = new InputNeuron();
-            array[i].SetNeuronValue(Random.Range(-1f, 1f));
-        }
-        InputNeurons = array;
+        return InputNeurons;
     }
 
-    public override float[] GetAllNeuronValues()
+    public void InitializeLayer(int size)
+    {
+        InputNeurons = new InputNeuron[size];
+        for (int i = 0; i < size; i++)
+        {
+            InputNeurons[i] = new InputNeuron();
+            InputNeurons[i].SetNeuronValue(Random.Range(-1f, 1f));
+        }
+    }
+
+    public float[] GetAllNeuronValues()
     {
         float[] values = new float[InputNeurons.Length];
         for (int i = 0; i < InputNeurons.Length; i++)
@@ -24,10 +28,5 @@ public class InputLayer : Layer
             values[i] = InputNeurons[i].GetNeuronValue();
         }
         return values;
-    }
-
-    public new InputNeuron[] GetNeurons()
-    {
-        return InputNeurons;
     }
 }

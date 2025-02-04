@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.HID;
 
 [System.Serializable]
 public class NeuralNetwork
 {
-    [SerializeField] [HideInInspector] private Layer[] HiddenLayers;
+    [SerializeField] [HideInInspector] private HiddenLayer[] HiddenLayers;
     [SerializeField] private InputLayer InputLayer;
-    [SerializeField] private Layer OutputLayer;
+    [SerializeField] private OutputLayer OutputLayer;
 
     private void SetInputLayerValues(float[] data)
     {
@@ -32,17 +27,17 @@ public class NeuralNetwork
 
         float[] previousLayerValues = InputLayer.GetAllNeuronValues();
 
-        HiddenLayers = new Layer[initData.HiddenLayerSizes.Length];
+        HiddenLayers = new HiddenLayer[initData.HiddenLayerSizes.Length];
         for (int i = 0; i < initData.HiddenLayerSizes.Length; i++)
         {
-            Layer hiddenLayer = new Layer();
-            hiddenLayer.InitializeLayer<HiddenNeuron>(initData.HiddenLayerSizes[i], previousLayerValues);
+            HiddenLayer hiddenLayer = new HiddenLayer();
+            hiddenLayer.InitializeLayer(initData.HiddenLayerSizes[i], previousLayerValues);
             HiddenLayers[i] = hiddenLayer;
             previousLayerValues = hiddenLayer.GetAllNeuronValues();
         }
 
-        OutputLayer = new Layer();
-        OutputLayer.InitializeLayer<OutputNeuron>(initData.OutputCount, previousLayerValues);
+        OutputLayer = new OutputLayer();
+        OutputLayer.InitializeLayer(initData.OutputCount, previousLayerValues);
     }
 
     public void Save(NeuralNetworkSave saveFile)
@@ -72,7 +67,7 @@ public class NeuralNetwork
 
         for (int i = 0; i < HiddenLayers.Length; i++)
         {
-            foreach (NonInputNeuron neuron in HiddenLayers[i].GetNeurons())
+            foreach (HiddenNeuron neuron in HiddenLayers[i].GetNeurons())
             {
                 if (i == 0) neuron.SetPreviousLayerValues(InputLayer.GetAllNeuronValues());
                 else neuron.SetPreviousLayerValues(HiddenLayers[i - 1].GetAllNeuronValues());
@@ -81,11 +76,10 @@ public class NeuralNetwork
             }
         }
 
-        NonInputNeuron[] outputNeurons = OutputLayer.GetNeurons() as NonInputNeuron[];
         for (int i = 0; i < OutputLayer.GetNeurons().Length; i++)
         {
-            outputNeurons[i].SetPreviousLayerValues(HiddenLayers[^1].GetAllNeuronValues());
-            outputNeurons[i].CalculateNeuronValue();
+            OutputLayer.GetNeurons()[i].SetPreviousLayerValues(HiddenLayers[^1].GetAllNeuronValues());
+            OutputLayer.GetNeurons()[i].CalculateNeuronValue();
         }
 
         return OutputLayer.GetAllNeuronValues();
