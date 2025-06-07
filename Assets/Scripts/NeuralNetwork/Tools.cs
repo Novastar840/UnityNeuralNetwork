@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Tools
 {
@@ -53,5 +54,13 @@ public class Tools
     public static T[] MakeArray<T>(params T[] objects)
     {
         return objects;
+    }
+
+    public static bool Roll(float chance)
+    {
+	    // Ensure chance is between 0 and 1
+	    chance = Mathf.Clamp01(chance);
+	    // Random.value returns a float in [0.0, 1.0)
+	    return Random.value < chance;
     }
 }
