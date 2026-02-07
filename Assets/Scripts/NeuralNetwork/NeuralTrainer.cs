@@ -51,13 +51,13 @@ public class NeuralTrainer : MonoBehaviour
 
 	private float CalculateScore()
 	{
-		float distanceToObjective = Vector3.Distance(RagDollController.GetBodyPosition(), RagDollController.WalkTarget.transform.position);
+		float distanceScore = 1f / (1f + Vector3.Distance(
+			RagDollController.GetBodyPosition(),
+			RagDollController.WalkTarget.transform.position));
 
-		float standingTimeNormalized = StandingTimer / NeuralTrainerManager.Singleton.GetIterationTime();
+		float standingBonus = Fallen ? 0f : StandingTimer;
 
-		float score = (standingTimeNormalized * StandingTimeImpactScalar) - (distanceToObjective * DistanceToObjectiveImpactScalar);
-
-		return score;
+		return distanceScore + standingBonus;
 	}
 
 	private void StartIteration()
@@ -66,10 +66,6 @@ public class NeuralTrainer : MonoBehaviour
 
 	public float GetTotalScore()
 	{
-		if (TotalScore == 0)
-		{
-			TotalScore = CalculateScore();
-		}
-		return TotalScore;
+		return CalculateScore();
 	}
 }

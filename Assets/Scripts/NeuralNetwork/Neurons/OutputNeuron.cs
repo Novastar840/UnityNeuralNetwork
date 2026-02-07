@@ -3,10 +3,10 @@ using UnityEngine;
 [System.Serializable]
 public class OutputNeuron : NonInputNeuron
 {
-    public override void CalculateNeuronValue()
-    {
-        base.CalculateNeuronValue();
+	public override void CalculateNeuronValue()
+	{
+		base.CalculateNeuronValue();
 
-        SetNeuronValue(Tools.Sigmoid(GetNeuronValue()));
-    }
+		SetNeuronValue(MathF.Tanh(GetNeuronValue()));
+	}
 }

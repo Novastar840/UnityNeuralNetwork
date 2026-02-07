@@ -24,6 +24,10 @@ public class RagdollController : MonoBehaviour
 	[SerializeField] private ConfigurableJoint RightFootJoint;
 	[SerializeField] private ConfigurableJoint LeftFootJoint;
 
+	[Header("Normalization Ranges")]
+	[SerializeField] private float MaxLimbDistance = 4f;        // maximum expected distance of limb from body
+	[SerializeField] private float MaxTargetDistance = 30f;     // maximum distance to walk target
+
 	public GameObject WalkTarget;
 
 	private Vector3 RightLegHighPosition;
@@ -103,13 +107,15 @@ public class RagdollController : MonoBehaviour
 
 	private float[] NormalizeInputs(float[] inputs)
 	{
-		float min = Mathf.Min(inputs); // Find the smallest value
-		float max = Mathf.Max(inputs); // Find the largest value
-
+		// Each group of 3 (x,y,z) gets normalized independently
 		float[] normalized = new float[inputs.Length];
-		for (int i = 0; i < inputs.Length; i++)
+		for (int i = 0; i < inputs.Length; i += 3)
 		{
-			normalized[i] = (inputs[i] - min) / (max - min);
+			Vector3 vec = new Vector3(inputs[i], inputs[i + 1], inputs[i + 2]);
+			vec = Vector3.ClampMagnitude(vec, 1f); // Just clamp magnitude
+			normalized[i] = vec.x;
+			normalized[i + 1] = vec.y;
+			normalized[i + 2] = vec.z;
 		}
 		return normalized;
 	}
@@ -117,21 +123,39 @@ public class RagdollController : MonoBehaviour
 
 	private float[] MakeInputList()
 	{
+		// Update positions
 		UpdateBodyPositions();
 
-		List<float> inputList = new List<float>();
-		BreakVectorsAndAdd(ref inputList,
-			RightLegHighPosition,
-			LeftLegHighPosition,
-			RightLegLowPosition,
-			LeftLegLowPosition,
-			RightFootPosition,
-			LeftFootPosition,
-			BodyPosition);
+		// Compute everything relative to body root
+		Vector3 bodyPos = BodyPosition;
+		Vector3 rLegHigh = (RightLegHighPosition - bodyPos) / MaxLimbDistance;
+		Vector3 lLegHigh = (LeftLegHighPosition - bodyPos) / MaxLimbDistance;
+		Vector3 rLegLow = (RightLegLowPosition - bodyPos) / MaxLimbDistance;
+		Vector3 lLegLow = (LeftLegLowPosition - bodyPos) / MaxLimbDistance;
+		Vector3 rFoot = (RightFootPosition - bodyPos) / MaxLimbDistance;
+		Vector3 lFoot = (LeftFootPosition - bodyPos) / MaxLimbDistance;
 
-		inputList.Add(WalkTarget.transform.position.x);
-		inputList.Add(WalkTarget.transform.position.z);
+		// Relative target direction normalized
+		Vector3 toTarget = (WalkTarget.transform.position - bodyPos) / MaxTargetDistance;
+
+		// Build input list with clamped values
+		List<float> inputList = new List<float>();
+		AddVector3Clamped(ref inputList, rLegHigh);
+		AddVector3Clamped(ref inputList, lLegHigh);
+		AddVector3Clamped(ref inputList, rLegLow);
+		AddVector3Clamped(ref inputList, lLegLow);
+		AddVector3Clamped(ref inputList, rFoot);
+		AddVector3Clamped(ref inputList, lFoot);
+		AddVector3Clamped(ref inputList, toTarget);
+
 		return inputList.ToArray();
+	}
+
+	private void AddVector3Clamped(ref List<float> list, Vector3 vector)
+	{
+		list.Add(Mathf.Clamp(vector.x, -1f, 1f));
+		list.Add(Mathf.Clamp(vector.y, -1f, 1f));
+		list.Add(Mathf.Clamp(vector.z, -1f, 1f));
 	}
 
 	private void BreakVectorsAndAdd(ref List<float> inputList, params Vector3[] vectors)
@@ -158,9 +182,11 @@ public class RagdollController : MonoBehaviour
 
 	private Quaternion GetQuaternionFromNeuralOutput(ref float[] data, ref int index)
 	{
-		Quaternion rotation = new Quaternion(data[index], data[index + 1], data[index + 2], data[index + 3]);
-		index += 4;
-		return rotation.normalized;
+		float x = Mathf.Clamp(data[index], -180f, 180f);
+		float y = Mathf.Clamp(data[index + 1], -180f, 180f);
+		float z = Mathf.Clamp(data[index + 2], -180f, 180f);
+		index += 3;
+		return Quaternion.Euler(x, y, z);
 	}
 
 	private void OnCollisionEnter(Collision other)

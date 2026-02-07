@@ -32,6 +32,11 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private NeuralNetworkSave SaveFile;
 
+	private void Awake()
+	{
+		Application.runInBackground = true;
+	}
+
 	private void Start()
 	{
 		if (Singleton == null)
@@ -162,10 +167,14 @@ public class NeuralTrainerManager : MonoBehaviour
 		foreach (GameObject ragDoll in Generation)
 		{
 			NeuralTrainer trainer = ragDoll.GetComponent<NeuralTrainer>();
-			float score = trainer.GetTotalScore();
-			if (trainer && score > bestScore)
+			if (trainer)
 			{
-				bestPerformingRagDoll = ragDoll;
+				float score = trainer.GetTotalScore();
+				if (score > bestScore)
+				{
+					bestScore = score;
+					bestPerformingRagDoll = ragDoll;
+				}
 			}
 		}
 
