@@ -11,16 +11,7 @@ public class NeuralTrainer : MonoBehaviour
 
 	private NeuralNetwork NeuralNetwork;
 
-	[SerializeField]
-	private float StandingTimeImpactScalar = 1;
-
-	[SerializeField]
-	private float DistanceToObjectiveImpactScalar = 1;
-
 	private float TotalScore;
-
-	[SerializeField]
-	private int GenerationSize = 10;
 
 	[HideInInspector]
 	public bool IsBestPerformingRagDoll = false;

@@ -9,10 +9,6 @@ public class NonInputNeuron : Neuron
 	[SerializeField] protected float[] PreviousLayerNeuronValues;
 	[SerializeField] protected float[] Weights;
 	[SerializeField] protected float Bias = 0;
-	protected float GetWeight()
-	{
-		return Tools.Sigmoid(Tools.GetTotalValue(Weights));
-	}
 
 	protected float GetBias()
 	{

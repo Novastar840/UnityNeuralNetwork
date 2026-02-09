@@ -71,19 +71,27 @@ public class NeuralNetwork
 
 		for (int i = 0; i < HiddenLayers.Length; i++)
 		{
-			foreach (HiddenNeuron neuron in HiddenLayers[i].GetNeurons())
-			{
-				if (i == 0) neuron.SetPreviousLayerValues(InputLayer.GetAllNeuronValues());
-				else neuron.SetPreviousLayerValues(HiddenLayers[i - 1].GetAllNeuronValues());
+			float[] previousOutputs;
+			if (i == 0)
+				previousOutputs = InputLayer.GetAllNeuronValues();
+			else
+				previousOutputs = HiddenLayers[i - 1].GetAllNeuronValues();
 
+			foreach (var neuron in HiddenLayers[i].GetNeurons())
+			{
+				neuron.SetPreviousLayerValues(previousOutputs);
 				neuron.CalculateNeuronValue();
 			}
 		}
 
-		for (int i = 0; i < OutputLayer.GetNeurons().Length; i++)
+		float[] lastHiddenOutputs = HiddenLayers.Length > 0
+			? HiddenLayers[^1].GetAllNeuronValues()
+			: InputLayer.GetAllNeuronValues();
+
+		foreach (var neuron in OutputLayer.GetNeurons())
 		{
-			OutputLayer.GetNeurons()[i].SetPreviousLayerValues(HiddenLayers[^1].GetAllNeuronValues());
-			OutputLayer.GetNeurons()[i].CalculateNeuronValue();
+			neuron.SetPreviousLayerValues(lastHiddenOutputs);
+			neuron.CalculateNeuronValue();
 		}
 
 		return OutputLayer.GetAllNeuronValues();
