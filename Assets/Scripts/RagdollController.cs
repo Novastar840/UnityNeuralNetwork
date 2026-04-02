@@ -69,13 +69,13 @@ public class RagdollController : MonoBehaviour
 			return;
 		}
 
-		NeuralNetwork = SaveFile.Load();
 		if (NeuralNetwork == null)
 		{
 			NeuralNetwork = new NeuralNetwork();
 			NeuralNetwork.InitializeNeuralNetwork(InitData);
 			NeuralNetwork.Save(SaveFile);
 		}
+		NeuralNetwork = SaveFile.Load();
 	}
 
 	private void FixedUpdate()
@@ -182,9 +182,11 @@ public class RagdollController : MonoBehaviour
 
 	private Quaternion GetQuaternionFromNeuralOutput(ref float[] data, ref int index)
 	{
-		float x = Mathf.Clamp(data[index], -180f, 180f);
-		float y = Mathf.Clamp(data[index + 1], -180f, 180f);
-		float z = Mathf.Clamp(data[index + 2], -180f, 180f);
+		float maxRotationAngle = 40f;
+
+		float x = data[index] * maxRotationAngle;
+		float y = data[index + 1] * maxRotationAngle;
+		float z = data[index + 2] * maxRotationAngle;
 		index += 3;
 		return Quaternion.Euler(x, y, z);
 	}
