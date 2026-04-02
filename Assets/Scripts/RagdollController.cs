@@ -51,7 +51,7 @@ public class RagdollController : MonoBehaviour
 
 	public NoParamDelegate OnRagDollStatusUpdate;
 
-	public bool IsTraining;
+	[HideInInspector] public bool IsTraining;
 	private void Awake()
 	{
 		PositiveColliders = Tools.GetComponentsFromObjects<Collider>(LeftFoot, RightFoot);
