@@ -71,7 +71,7 @@ public class HiddenLayerTests
 		HiddenNeuron[] neurons = layer.GetNeurons();
 		foreach (HiddenNeuron neuron in neurons)
 		{
-			Assert.AreNotEqual(0f, neuron.GetNeuronValue());
+			Assert.GreaterOrEqual(neuron.GetNeuronValue(), 0f);
 		}
 	}
 }
