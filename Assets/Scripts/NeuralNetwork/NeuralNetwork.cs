@@ -158,4 +158,14 @@ public class NeuralNetwork
 		NeuralNetwork copy = NeuralNetworkSave.CloneViaJson(this);
 		return copy;
 	}
+
+	public InputLayer GetInputLayer()
+	{
+		return InputLayer;
+	}
+
+	public OutputLayer GetOutputLayer()
+	{
+		return OutputLayer;
+	}
 }
