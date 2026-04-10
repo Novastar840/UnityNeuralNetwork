@@ -23,7 +23,8 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	public static NeuralTrainerManager Singleton;
 
-	private GameObject BestPerformingRagDoll = null;
+	//private GameObject BestPerformingRagDoll = null;
+	private GameObject[] BestPerformingRagdolls = null;
 
 	private NeuralNetwork TrainingNeuralNetwork;
 
@@ -91,7 +92,7 @@ public class NeuralTrainerManager : MonoBehaviour
 		}
 		else
 		{
-			CreateNextGeneration(BestPerformingRagDoll);
+			CreateNextGeneration(BestPerformingRagdolls);
 		}
 
 		SpawnDestination();
@@ -114,9 +115,9 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private void EndIteration()
 	{
-		BestPerformingRagDoll = GetBestPerformingRagDoll();
+		BestPerformingRagdolls = GetBestPerformingRagdolls(3).ToArray();
 
-		TrainingNeuralNetwork = BestPerformingRagDoll.GetComponent<RagdollController>().NeuralNetwork;
+		TrainingNeuralNetwork = BestPerformingRagdolls[1].GetComponent<RagdollController>().NeuralNetwork;
 		TrainingNeuralNetwork.Save(SaveFile);
 
 		Destroy(WalkingDestinationInstance);
@@ -212,24 +213,51 @@ public class NeuralTrainerManager : MonoBehaviour
 		return bestRagdolls;
 	}
 
-	private void CreateNextGeneration(GameObject ragDoll)
+	//private void CreateNextGeneration(GameObject ragDoll)
+	//{
+	//	ClearGeneration();
+
+	//	RagdollController controller = ragDoll.GetComponent<RagdollController>();
+	//	Quaternion randRotation = GetRandomRotation();
+	//	for (int i = 0; i < GenerationSize; i++)
+	//	{
+	//		NeuralNetwork neuralNetworkCopy = controller.NeuralNetwork.GetClone();
+	//		if (i != 0)
+	//		{
+	//			neuralNetworkCopy.Mutate(MutateStrength);
+	//		}
+
+	//		GameObject newRagDoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
+	//		RagdollController newController = newRagDoll.GetComponent<RagdollController>();
+	//		newController.IsTraining = true;
+	//		newController.NeuralNetwork = neuralNetworkCopy;
+	//	}
+	//}
+
+	private void CreateNextGeneration(GameObject[] ragDolls)
 	{
 		ClearGeneration();
-
-		RagdollController controller = ragDoll.GetComponent<RagdollController>();
 		Quaternion randRotation = GetRandomRotation();
-		for (int i = 0; i < GenerationSize; i++)
+		foreach (GameObject ragDoll in ragDolls)
 		{
-			NeuralNetwork neuralNetworkCopy = controller.NeuralNetwork.GetClone();
-			if (i != 0)
+			RagdollController controller = ragDoll.GetComponent<RagdollController>();
+			for (int i = 0; i < (GenerationSize / ragDolls.Length) - 1; i++)
 			{
-				neuralNetworkCopy.Mutate(MutateStrength);
+				NeuralNetwork neuralNetworkCopy = controller.NeuralNetwork.GetClone();
+				if (i != 0)
+				{
+					neuralNetworkCopy.Mutate(MutateStrength);
+				}
+				GameObject newRagDoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
+				RagdollController newController = newRagDoll.GetComponent<RagdollController>();
+				newController.IsTraining = true;
+				newController.NeuralNetwork = neuralNetworkCopy;
 			}
 
-			GameObject newRagDoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
-			RagdollController newController = newRagDoll.GetComponent<RagdollController>();
-			newController.IsTraining = true;
-			newController.NeuralNetwork = neuralNetworkCopy;
+			GameObject carryOverRagdoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
+			RagdollController caryOverController = ragDoll.GetComponent<RagdollController>();
+			caryOverController.IsTraining = true;
+			caryOverController.NeuralNetwork = controller.NeuralNetwork;
 		}
 	}
 
