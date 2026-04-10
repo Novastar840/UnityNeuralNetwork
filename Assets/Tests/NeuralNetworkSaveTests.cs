@@ -35,6 +35,12 @@ public class NeuralNetworkSaveTests
 			foreach (string file in files)
 			{
 				File.Delete(file);
+				// Also delete the corresponding .meta file if it exists
+				string metaFile = file + ".meta";
+				if (File.Exists(metaFile))
+				{
+					File.Delete(metaFile);
+				}
 			}
 		}
 	}
