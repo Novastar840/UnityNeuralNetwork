@@ -13,6 +13,7 @@ public class NeuralTrainerManager : MonoBehaviour
 	[SerializeField] private int GenerationSize = 5;
 	[SerializeField] private float MutateStrength = 0.5f;
 	[SerializeField] private float IterationTime = 20f;
+	[SerializeField] private int GenerationCarryOverCount = 3;
 	private float IterationCountDown;
 
 	[SerializeField] private GameObject RagDollPrefabToTrain;
@@ -183,6 +184,32 @@ public class NeuralTrainerManager : MonoBehaviour
 			bestPerformingRagDoll.GetComponent<NeuralTrainer>().IsBestPerformingRagDoll = true;
 		}
 		return bestPerformingRagDoll;
+	}
+
+	public List<GameObject> GetBestPerformingRagdolls(int count)
+	{
+		List<KeyValuePair<GameObject, float>> ragdollScores = new List<KeyValuePair<GameObject, float>>();
+
+		foreach (GameObject ragDoll in Generation)
+		{
+			NeuralTrainer trainer = ragDoll.GetComponent<NeuralTrainer>();
+			if (trainer)
+			{
+				float score = trainer.GetTotalScore();
+				ragdollScores.Add(new KeyValuePair<GameObject, float>(ragDoll, score));
+			}
+		}
+
+		ragdollScores.Sort((a, b) => b.Value.CompareTo(a.Value));
+
+		List<GameObject> bestRagdolls = new List<GameObject>();
+		int actualCount = Mathf.Min(count, ragdollScores.Count);
+		for (int i = 0; i < actualCount; i++)
+		{
+			bestRagdolls.Add(ragdollScores[i].Key);
+		}
+
+		return bestRagdolls;
 	}
 
 	private void CreateNextGeneration(GameObject ragDoll)
