@@ -41,6 +41,11 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private void Start()
 	{
+		InitAndStartIteration();
+	}
+
+	public void InitAndStartIteration()
+	{
 		if (Singleton == null)
 		{
 			Singleton = this;
@@ -115,7 +120,7 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private void EndIteration()
 	{
-		BestPerformingRagdolls = GetBestPerformingRagdolls(3).ToArray();
+		BestPerformingRagdolls = GetBestPerformingRagdolls(GenerationCarryOverCount).ToArray();
 
 		TrainingNeuralNetwork = BestPerformingRagdolls[1].GetComponent<RagdollController>().NeuralNetwork;
 		TrainingNeuralNetwork.Save(SaveFile);
@@ -161,31 +166,31 @@ public class NeuralTrainerManager : MonoBehaviour
 		}
 	}
 
-	private GameObject GetBestPerformingRagDoll()
-	{
-		GameObject bestPerformingRagDoll = null;
-		float bestScore = float.MinValue;
+	//private GameObject GetBestPerformingRagDoll()
+	//{
+	//	GameObject bestPerformingRagDoll = null;
+	//	float bestScore = float.MinValue;
 
-		foreach (GameObject ragDoll in Generation)
-		{
-			NeuralTrainer trainer = ragDoll.GetComponent<NeuralTrainer>();
-			if (trainer)
-			{
-				float score = trainer.GetTotalScore();
-				if (score > bestScore)
-				{
-					bestScore = score;
-					bestPerformingRagDoll = ragDoll;
-				}
-			}
-		}
+	//	foreach (GameObject ragDoll in Generation)
+	//	{
+	//		NeuralTrainer trainer = ragDoll.GetComponent<NeuralTrainer>();
+	//		if (trainer)
+	//		{
+	//			float score = trainer.GetTotalScore();
+	//			if (score > bestScore)
+	//			{
+	//				bestScore = score;
+	//				bestPerformingRagDoll = ragDoll;
+	//			}
+	//		}
+	//	}
 
-		if (bestPerformingRagDoll != null)
-		{
-			bestPerformingRagDoll.GetComponent<NeuralTrainer>().IsBestPerformingRagDoll = true;
-		}
-		return bestPerformingRagDoll;
-	}
+	//	if (bestPerformingRagDoll != null)
+	//	{
+	//		bestPerformingRagDoll.GetComponent<NeuralTrainer>().IsBestPerformingRagDoll = true;
+	//	}
+	//	return bestPerformingRagDoll;
+	//}
 
 	public List<GameObject> GetBestPerformingRagdolls(int count)
 	{
