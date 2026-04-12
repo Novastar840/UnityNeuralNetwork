@@ -34,6 +34,10 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private NeuralNetworkSave SaveFile;
 
+	// Multithreading support
+	private System.Threading.Tasks.Task<NeuralNetworkParallelProcessor.NetworkProcessingResult[]> PendingProcessingTask;
+	private List<NeuralNetworkParallelProcessor.NetworkProcessingResult> CurrentGenerationResults;
+
 	private void Awake()
 	{
 		Application.runInBackground = true;
@@ -69,6 +73,8 @@ public class NeuralTrainerManager : MonoBehaviour
 		if (IterationCountDown > 0)
 		{
 			IterationCountDown -= Time.deltaTime;
+
+			ProcessGenerationInParallel();
 		}
 		else
 		{
@@ -106,6 +112,8 @@ public class NeuralTrainerManager : MonoBehaviour
 		{
 			ragDoll.GetComponent<RagdollController>().WalkTarget = WalkingDestinationInstance;
 		}
+
+		InitializeParellelProcessing();
 	}
 
 	private void AssignAndMutateNeuralNetworkCopy(GameObject ragDoll)
@@ -298,5 +306,79 @@ public class NeuralTrainerManager : MonoBehaviour
 		// Generate a random rotation around the Y axis (upright)
 		float yAngle = UnityEngine.Random.Range(0f, 360f);
 		return Quaternion.Euler(0f, yAngle, 0f);
+	}
+
+	/// <summary>
+	/// Initialize data structures for parallel processing
+	/// </summary>
+	private void InitializeParellelProcessing()
+	{
+		CurrentGenerationResults = new List<NeuralNetworkParallelProcessor.NetworkProcessingResult>();
+		PendingProcessingTask = null;
+	}
+
+	/// <summary>
+	/// Process all ragdoll neural networks in parallel using multiple CPU cores
+	/// </summary>
+	private void ProcessGenerationInParallel()
+	{
+		// Check if previous task is complete and apply results
+		if (PendingProcessingTask != null && PendingProcessingTask.IsCompleted)
+		{
+			ApplyParallelProcessingResults(PendingProcessingTask.Result);
+			PendingProcessingTask = null;
+		}
+
+		// Only start new task if no pending task and we have generation to process
+		if (PendingProcessingTask == null && Generation.Count > 0)
+		{
+			var processingInputs = new List<NeuralNetworkParallelProcessor.NetworkProcessingResult>();
+
+			foreach (GameObject ragdoll in Generation)
+			{
+				RagdollController controller = ragdoll.GetComponent<RagdollController>();
+
+				if (controller != null && controller.NeuralNetwork != null)
+				{
+					float[] inputs = controller.PrepareInputsForProcessing();
+					processingInputs.Add(new NeuralNetworkParallelProcessor.NetworkProcessingResult
+					{
+						NeuralNetwork = controller.NeuralNetwork,
+						Inputs = inputs,
+						RagdollID = ragdoll.GetInstanceID()
+					});
+				}
+			}
+
+			if (processingInputs.Count > 0)
+			{
+				// Start parallel processing on background threads
+				var inputData = processingInputs.ToArray();
+				PendingProcessingTask = NeuralNetworkParallelProcessor.ProcessNetworksInParallel(inputData);
+			}
+		}
+	}
+
+	/// <summary>
+	/// Apply the results from parallel processing back to ragdolls
+	/// </summary>
+	private void ApplyParallelProcessingResults(NeuralNetworkParallelProcessor.NetworkProcessingResult[] results)
+	{
+		foreach (var result in results)
+		{
+			// Find the corresponding ragdoll by instance ID
+			foreach (GameObject ragDoll in Generation)
+			{
+				if (ragDoll.GetInstanceID() == result.RagdollID)
+				{
+					RagdollController controller = ragDoll.GetComponent<RagdollController>();
+					if (controller != null)
+					{
+						controller.ApplyNetworkOutputs(result.Outputs);
+					}
+					break;
+				}
+			}
+		}
 	}
 }

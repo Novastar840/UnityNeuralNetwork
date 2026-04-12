@@ -52,6 +52,11 @@ public class RagdollController : MonoBehaviour
 	public NoParamDelegate OnRagDollStatusUpdate;
 
 	[HideInInspector] public bool IsTraining;
+
+	// For Multithreaded processing
+	[HideInInspector] public float[] PendingOutputs;
+	[HideInInspector] public bool HasPendingOutputs = false;
+
 	private void Awake()
 	{
 		PositiveColliders = Tools.GetComponentsFromObjects<Collider>(LeftFoot, RightFoot);
@@ -80,9 +85,23 @@ public class RagdollController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		float[] inputs = NormalizeInputs(MakeInputList());
-		NeuralNetwork.ProcessData(inputs);
-		SetRagDollJoints(NeuralNetwork.GetOutputLayerData());
+		if (IsTraining)
+		{
+			// For training, outputs are computed in parallel by NeuralTrainerManager
+			// Apply pending outputs if available
+			if (HasPendingOutputs && PendingOutputs != null)
+			{
+				SetRagDollJoints(PendingOutputs);
+				HasPendingOutputs = false;
+			}
+		}
+		else
+		{
+			// Non-training mode: process synchronously
+			float[] inputs = NormalizeInputs(MakeInputList());
+			NeuralNetwork.ProcessData(inputs);
+			SetRagDollJoints(NeuralNetwork.GetOutputLayerData());
+		}
 	}
 
 	private void UpdateBodyPositions()
@@ -292,5 +311,23 @@ public class RagdollController : MonoBehaviour
 	public Vector3 GetBodyPosition()
 	{
 		return BodyPosition;
+	}
+
+	/// <summary>
+	/// Prepare input data for neural network processing (called from main thread)
+	/// </summary>
+	public float[] PrepareInputsForProcessing()
+	{
+		UpdateBodyPositions();
+		return NormalizeInputs(MakeInputList());
+	}
+
+	/// <summary>
+	/// Apply pre-computed neural network outputs to joints
+	/// </summary>
+	public void ApplyNetworkOutputs(float[] outputs)
+	{
+		PendingOutputs = outputs;
+		HasPendingOutputs = true;
 	}
 }
