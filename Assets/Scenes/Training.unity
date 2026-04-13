@@ -452,7 +452,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &337597599
@@ -642,7 +642,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &645140754
@@ -782,9 +782,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartPositionObject: {fileID: 171454394}
-  GenerationSize: 20
-  MutateStrength: 50
+  GenerationSize: 30
+  MutateStrength: 2
   IterationTime: 15
+  GenerationCarryOverCount: 1
   RagDollPrefabToTrain: {fileID: 4213490359984510102, guid: ddcca256811b24d4bab948492b75c387, type: 3}
   WalkingDestinationPrefab: {fileID: 1051040316563851324, guid: 06a9d44da6702ec4d839a36750390848, type: 3}
 --- !u!1 &1845143285
@@ -839,7 +840,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &1845143288
@@ -902,7 +903,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &1961629519
