@@ -42,13 +42,20 @@ public class NeuralTrainer : MonoBehaviour
 
 	private float CalculateScore()
 	{
-		float distanceScore = 1f / (1f + Vector3.Distance(
+		float distanceToTarget = Vector3.Distance(
 			RagDollController.GetBodyPosition(),
-			RagDollController.WalkTarget.transform.position));
+			RagDollController.WalkTarget.transform.position);
 
-		float standingBonus = Fallen ? 0f : StandingTimer;
+		// 1. Weight distance higher so movement matters
+		float distanceScore = Mathf.Max(0f, (30f - distanceToTarget) * 0.5f);
 
-		return distanceScore + standingBonus;
+		// 2. Keep standing bonus, but cap it or reduce its weight
+		float standingBonus = Fallen ? 0f : Mathf.Min(StandingTimer, 5f);
+
+		// 3. Optional: Penalize falling to discourage early collapse
+		float fallPenalty = Fallen ? -5f : 0f;
+
+		return distanceScore + standingBonus + fallPenalty;
 	}
 
 	private void StartIteration()
