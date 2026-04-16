@@ -26,9 +26,9 @@ public static class NeuralNetworkParallelProcessor
 	{
 		return Task.Run(() =>
 		{
-			Parallel.ForEach(networksToProcess, network =>
+			Parallel.For(0 ,networksToProcess.Length, i =>
 			{
-				network.Outputs = network.NeuralNetwork.ProcessData(network.Inputs);
+				networksToProcess[i].Outputs = networksToProcess[i].NeuralNetwork.ProcessData(networksToProcess[i].Inputs);
 			});
 
 			return networksToProcess;
