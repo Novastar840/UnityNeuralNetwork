@@ -261,13 +261,22 @@ public class NeuralTrainerManager : MonoBehaviour
 		foreach (GameObject ragDoll in ragDolls)
 		{
 			RagdollController controller = ragDoll.GetComponent<RagdollController>();
-			for (int i = 0; i < (GenerationSize / ragDolls.Length) - 1; i++)
+			
+			int ragdollsPerParent = GenerationSize / ragDolls.Length;
+			int remainder = GenerationSize % ragDolls.Length;
+			
+			// Calculate how many copies to make from this parent
+			int copiesForThisParent = ragdollsPerParent;
+			if (remainder > 0)
+			{
+				copiesForThisParent++;
+			}
+
+			// Create mutated copies
+			for (int i = 0; i < copiesForThisParent - 1; i++)
 			{
 				NeuralNetwork neuralNetworkCopy = controller.NeuralNetwork.GetClone();
-				if (i != 0)
-				{
-					neuralNetworkCopy.Mutate(MutateStrength);
-				}
+				neuralNetworkCopy.Mutate(MutateStrength);
 				GameObject newRagDoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
 				RagdollController newController = newRagDoll.GetComponent<RagdollController>();
 				newController.IsTraining = true;
@@ -275,7 +284,7 @@ public class NeuralTrainerManager : MonoBehaviour
 			}
 
 			GameObject carryOverRagdoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
-			RagdollController caryOverController = ragDoll.GetComponent<RagdollController>();
+			RagdollController caryOverController = carryOverRagdoll.GetComponent<RagdollController>();
 			caryOverController.IsTraining = true;
 			caryOverController.NeuralNetwork = controller.NeuralNetwork;
 		}
