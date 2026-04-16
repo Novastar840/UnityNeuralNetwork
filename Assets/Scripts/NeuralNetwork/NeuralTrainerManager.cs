@@ -95,7 +95,14 @@ public class NeuralTrainerManager : MonoBehaviour
 			for (int i = 0; i < GenerationSize; i++)
 			{
 				GameObject ragDoll = SpawnRagDollAndAddToGeneration(StartPosition, randRotation);
-				if (i != 0)
+				if (i == 0)
+				{
+					var controller  = ragDoll.GetComponent<RagdollController>();
+					
+					controller.NeuralNetwork = TrainingNeuralNetwork.GetClone();
+					controller.IsTraining = true;
+				}
+				else
 				{
 					AssignAndMutateNeuralNetworkCopy(ragDoll);
 				}
@@ -113,7 +120,7 @@ public class NeuralTrainerManager : MonoBehaviour
 			ragDoll.GetComponent<RagdollController>().WalkTarget = WalkingDestinationInstance;
 		}
 
-		InitializeParellelProcessing();
+		InitializeParallelProcessing();
 	}
 
 	private void AssignAndMutateNeuralNetworkCopy(GameObject ragDoll)
@@ -130,7 +137,7 @@ public class NeuralTrainerManager : MonoBehaviour
 	{
 		BestPerformingRagdolls = GetBestPerformingRagdolls(GenerationCarryOverCount).ToArray();
 
-		TrainingNeuralNetwork = BestPerformingRagdolls[1].GetComponent<RagdollController>().NeuralNetwork;
+		TrainingNeuralNetwork = BestPerformingRagdolls[0].GetComponent<RagdollController>().NeuralNetwork;
 		TrainingNeuralNetwork.Save(SaveFile);
 
 		Destroy(WalkingDestinationInstance);
@@ -311,7 +318,7 @@ public class NeuralTrainerManager : MonoBehaviour
 	/// <summary>
 	/// Initialize data structures for parallel processing
 	/// </summary>
-	private void InitializeParellelProcessing()
+	private void InitializeParallelProcessing()
 	{
 		CurrentGenerationResults = new List<NeuralNetworkParallelProcessor.NetworkProcessingResult>();
 		PendingProcessingTask = null;
