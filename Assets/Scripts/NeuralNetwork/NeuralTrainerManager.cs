@@ -266,11 +266,7 @@ public class NeuralTrainerManager : MonoBehaviour
 			int remainder = GenerationSize % ragDolls.Length;
 			
 			// Calculate how many copies to make from this parent
-			int copiesForThisParent = ragdollsPerParent;
-			if (remainder > 0)
-			{
-				copiesForThisParent++;
-			}
+			int copiesForThisParent = ragdollsPerParent + (Array.IndexOf(ragDolls, ragDoll) < remainder ? 1 : 0);
 
 			// Create mutated copies
 			for (int i = 0; i < copiesForThisParent - 1; i++)
