@@ -28,7 +28,7 @@ public class RagdollController : MonoBehaviour
 	[SerializeField] private float MaxLimbDistance = 4f;        // maximum expected distance of limb from body
 	[SerializeField] private float MaxTargetDistance = 30f;     // maximum distance to walk target
 
-	public GameObject WalkTarget;
+	[HideInInspector] public GameObject WalkTarget;
 
 	private Vector3 RightLegHighPosition;
 	private Vector3 LeftLegHighPosition;
@@ -38,7 +38,7 @@ public class RagdollController : MonoBehaviour
 	private Vector3 LeftFootPosition;
 	private Vector3 BodyPosition;
 
-	public NeuralNetwork NeuralNetwork;
+	[HideInInspector] public NeuralNetwork NeuralNetwork;
 
 	private Collider[] PositiveColliders;
 	private Collider[] NegativeColliders;
@@ -57,10 +57,14 @@ public class RagdollController : MonoBehaviour
 	[HideInInspector] public float[] PendingOutputs;
 	[HideInInspector] public bool HasPendingOutputs = false;
 
+	[SerializeField] private Color FallenColor = Color.red;
+	[SerializeField] private Color RagdollColor = Color.deepSkyBlue;
+
 	private void Awake()
 	{
 		PositiveColliders = Tools.GetComponentsFromObjects<Collider>(LeftFoot, RightFoot);
 		NegativeColliders = Tools.GetComponentsFromObjects<Collider>(RightLegHigh, LeftLegHigh, LeftLegLow, RightLegLow, Body);
+		
 		Trainer = GetComponent<NeuralTrainer>();
 	}
 
@@ -69,6 +73,11 @@ public class RagdollController : MonoBehaviour
 		BodyParts = Tools.MakeArray(RightLegHigh, LeftLegHigh, LeftLegLow, RightLegLow, Body, LeftFoot, RightFoot);
 		SetupCollisionRelay(BodyParts);
 
+		foreach (var bodyPart in BodyParts)
+		{
+			bodyPart.GetComponent<Renderer>().material.color = RagdollColor;
+		}
+		
 		if (IsTraining)
 		{
 			return;
@@ -300,6 +309,17 @@ public class RagdollController : MonoBehaviour
 			Trainer.Fallen = true;
 			Trainer.FeetOnGround = false;
 		}
+
+		if (Trainer.Fallen)
+		{
+			Body.gameObject.GetComponent<Renderer>().material.color = FallenColor;
+		}
+		else
+		{
+			Body.gameObject.GetComponent<Renderer>().material.color = RagdollColor;
+
+		}
+		
 		OnRagDollStatusUpdate.Invoke();
 	}
 
