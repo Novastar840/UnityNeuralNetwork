@@ -34,6 +34,11 @@ public class Tools
     {
         return Mathf.Max(0, value);
     }
+    
+    public static float LeakyReLU(float value)
+    {
+        return Mathf.Max(0.01f * value, value);
+    }
 
     public static T[] GetComponentsFromObjects<T>(params GameObject[] objects) where T : Component
     {

@@ -8,6 +8,6 @@ public class HiddenNeuron : NonInputNeuron
     {
         base.CalculateNeuronValue();
 
-        SetNeuronValue(Tools.ReLU(GetNeuronValue()));
+        SetNeuronValue(Tools.LeakyReLU(GetNeuronValue()));
     }
 }
