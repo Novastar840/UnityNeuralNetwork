@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Codice.Client.BaseCommands.Merge.Xml;
 using UnityEngine;
 
 public class RagdollController : MonoBehaviour
@@ -28,7 +29,7 @@ public class RagdollController : MonoBehaviour
 	[SerializeField] private float MaxLimbDistance = 4f;        // maximum expected distance of limb from body
 	[SerializeField] private float MaxTargetDistance = 30f;     // maximum distance to walk target
 
-	[HideInInspector] public GameObject WalkTarget;
+	public GameObject WalkTarget;
 
 	private Vector3 RightLegHighPosition;
 	private Vector3 LeftLegHighPosition;
@@ -87,7 +88,6 @@ public class RagdollController : MonoBehaviour
 		{
 			NeuralNetwork = new NeuralNetwork();
 			NeuralNetwork.InitializeNeuralNetwork(InitData);
-			NeuralNetwork.Save(SaveFile);
 		}
 		NeuralNetwork = SaveFile.Load();
 	}
@@ -107,7 +107,7 @@ public class RagdollController : MonoBehaviour
 		else
 		{
 			// Non-training mode: process synchronously
-			float[] inputs = NormalizeInputs(MakeInputList());
+			float[] inputs = MakeInputList();
 			NeuralNetwork.ProcessData(inputs);
 			SetRagDollJoints(NeuralNetwork.GetOutputLayerData());
 		}
@@ -132,22 +132,6 @@ public class RagdollController : MonoBehaviour
 		NeuralNetwork.InitializeNeuralNetwork(InitData);
 		NeuralNetwork.Save(SaveFile);
 	}
-
-	private float[] NormalizeInputs(float[] inputs)
-	{
-		// Each group of 3 (x,y,z) gets normalized independently
-		float[] normalized = new float[inputs.Length];
-		for (int i = 0; i < inputs.Length; i += 3)
-		{
-			Vector3 vec = new Vector3(inputs[i], inputs[i + 1], inputs[i + 2]);
-			vec = Vector3.ClampMagnitude(vec, 1f); // Just clamp magnitude
-			normalized[i] = vec.x;
-			normalized[i + 1] = vec.y;
-			normalized[i + 2] = vec.z;
-		}
-		return normalized;
-	}
-
 
 	private float[] MakeInputList()
 	{
@@ -181,9 +165,15 @@ public class RagdollController : MonoBehaviour
 
 	private void AddVector3Clamped(ref List<float> list, Vector3 vector)
 	{
-		list.Add(Mathf.Clamp(vector.x, -1f, 1f));
-		list.Add(Mathf.Clamp(vector.y, -1f, 1f));
-		list.Add(Mathf.Clamp(vector.z, -1f, 1f));
+		if (vector.magnitude > 1)
+		{
+			Debug.LogWarning("Clamping vector");
+		}
+		
+		Vector3 clamped = Vector3.ClampMagnitude(vector, 1f);
+		list.Add(clamped.x);
+		list.Add(clamped.y);
+		list.Add(clamped.z);
 	}
 
 	private void BreakVectorsAndAdd(ref List<float> inputList, params Vector3[] vectors)
@@ -231,24 +221,20 @@ public class RagdollController : MonoBehaviour
 
 	public void CollisionEnter(Collision other)
 	{
-		Collider otherCollider = other.collider;
+		if (!other.gameObject.CompareTag("Ground"))
+			return;
 
-		foreach (Collider collider in PositiveColliders)
+		Collider hitCollider = GetContactingCollider(other);
+		if (hitCollider == null)
+			return;
+
+		if (PositiveColliders.Contains(hitCollider))
 		{
-			if (collider == otherCollider)
-			{
-				PositiveCollisionCounter++;
-				return;
-			}
+			PositiveCollisionCounter++;
 		}
-
-		foreach (Collider collider in NegativeColliders)
+		else if (NegativeColliders.Contains(hitCollider))
 		{
-			if (collider == otherCollider)
-			{
-				NegativeCollisionCounter++;
-				return;
-			}
+			NegativeCollisionCounter++;
 		}
 
 		UpdateStatusBooleans();
@@ -256,27 +242,36 @@ public class RagdollController : MonoBehaviour
 
 	public void CollisionExit(Collision other)
 	{
-		Collider otherCollider = other.collider;
+		if (!other.gameObject.CompareTag("Ground"))
+			return;
 
-		foreach (Collider collider in PositiveColliders)
+		Collider hitCollider = GetContactingCollider(other);
+		if (hitCollider == null)
+			return;
+
+		if (PositiveColliders.Contains(hitCollider))
 		{
-			if (collider == otherCollider)
-			{
-				PositiveCollisionCounter--;
-				return;
-			}
+			PositiveCollisionCounter--;
 		}
-
-		foreach (Collider collider in NegativeColliders)
+		else if (NegativeColliders.Contains(hitCollider))
 		{
-			if (collider == otherCollider)
-			{
-				NegativeCollisionCounter--;
-				return;
-			}
+			NegativeCollisionCounter--;
 		}
 
 		UpdateStatusBooleans();
+	}
+	
+	/// <summary>
+	/// Safely extracts the local ragdoll collider that made contact.
+	/// </summary>
+	private Collider GetContactingCollider(Collision collision)
+	{
+		foreach (ContactPoint contact in collision.contacts)
+		{
+			if (contact.thisCollider != null)
+				return contact.thisCollider;
+		}
+		return null;
 	}
 
 	private void SetupCollisionRelay(GameObject[] objects)
@@ -310,15 +305,7 @@ public class RagdollController : MonoBehaviour
 			Trainer.FeetOnGround = false;
 		}
 
-		if (Trainer.Fallen)
-		{
-			Body.gameObject.GetComponent<Renderer>().material.color = FallenColor;
-		}
-		else
-		{
-			Body.gameObject.GetComponent<Renderer>().material.color = RagdollColor;
-
-		}
+		Body.gameObject.GetComponent<Renderer>().material.color = Trainer.Fallen ? FallenColor : RagdollColor;
 		
 		OnRagDollStatusUpdate.Invoke();
 	}
@@ -339,7 +326,7 @@ public class RagdollController : MonoBehaviour
 	public float[] PrepareInputsForProcessing()
 	{
 		UpdateBodyPositions();
-		return NormalizeInputs(MakeInputList());
+		return MakeInputList();
 	}
 
 	/// <summary>

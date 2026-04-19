@@ -24,7 +24,10 @@ public class NeuralTrainer : MonoBehaviour
 
 	private void Start()
 	{
-		NeuralTrainerManager.Singleton.OnIterationStartDelegate += StartIteration;
+		if (RagDollController.IsTraining)
+		{
+			NeuralTrainerManager.Singleton.OnIterationStartDelegate += StartIteration;
+		}
 	}
 
 	private void Update()
@@ -42,20 +45,28 @@ public class NeuralTrainer : MonoBehaviour
 
 	private float CalculateScore()
 	{
-		float distanceToTarget = Vector3.Distance(
-			RagDollController.GetBodyPosition(),
-			RagDollController.WalkTarget.transform.position);
+		float score = StandingTimer;
+		if (Fallen)
+		{
+			score *= 0.5f;
+		}
+		return score;
 
-		// 1. Weight distance higher so movement matters
-		float distanceScore = Mathf.Max(0f, (30f - distanceToTarget) * 0.5f);
-
-		// 2. Keep standing bonus, but cap it or reduce its weight
-		float standingBonus = Fallen ? 0f : Mathf.Min(StandingTimer, 5f);
-
-		// 3. Optional: Penalize falling to discourage early collapse
-		float fallPenalty = Fallen ? -5f : 0f;
-
-		return distanceScore + standingBonus + fallPenalty;
+		//--FINAL TRAINING SCORE--
+		// float distanceToTarget = Vector3.Distance(
+		// 	RagDollController.GetBodyPosition(),
+		// 	RagDollController.WalkTarget.transform.position);
+		//
+		// // 1. Weight distance higher so movement matters
+		// float distanceScore = Mathf.Max(0f, (30f - distanceToTarget) * 0.5f);
+		//
+		// // 2. Keep standing bonus, but cap it or reduce its weight
+		// float standingBonus = Fallen ? 0f : Mathf.Min(StandingTimer, 5f);
+		//
+		// // 3. Optional: Penalize falling to discourage early collapse
+		// float fallPenalty = Fallen ? -5f : 0f;
+		//
+		// return distanceScore + standingBonus + fallPenalty;
 	}
 
 	private void StartIteration()

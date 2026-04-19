@@ -782,10 +782,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartPositionObject: {fileID: 171454394}
-  GenerationSize: 30
-  MutateStrength: 2
+  GenerationSize: 40
+  MutateStrength: 0.05
   IterationTime: 15
-  GenerationCarryOverCount: 1
+  GenerationCarryOverCount: 5
   RagDollPrefabToTrain: {fileID: 4213490359984510102, guid: ddcca256811b24d4bab948492b75c387, type: 3}
   WalkingDestinationPrefab: {fileID: 1051040316563851324, guid: 06a9d44da6702ec4d839a36750390848, type: 3}
 --- !u!1 &1845143285
