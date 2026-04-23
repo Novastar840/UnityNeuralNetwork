@@ -337,4 +337,13 @@ public class RagdollController : MonoBehaviour
 		PendingOutputs = outputs;
 		HasPendingOutputs = true;
 	}
+	
+	/// <summary>
+	/// Returns the angle between the Body up vector and the world up vector.
+	/// </summary>
+	public float GetBodyAngleFromLevel()
+	{
+		float angle = Vector3.Angle(Body.transform.up, Vector3.up);
+		return angle;
+	}
 }

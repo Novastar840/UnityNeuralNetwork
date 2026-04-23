@@ -13,6 +13,9 @@ public class NeuralTrainer : MonoBehaviour
 
 	private float TotalScore;
 
+	private float CumulativePostureScore;
+	private int PostureSampleCount;
+
 	[HideInInspector]
 	public bool IsBestPerformingRagDoll = false;
 
@@ -35,7 +38,19 @@ public class NeuralTrainer : MonoBehaviour
 		if (!Fallen)
 		{
 			StandingTimer += Time.deltaTime;
+			if (FeetOnGround)
+			{
+				UpdatePostureScore();
+			}
 		}
+	}
+
+	private void UpdatePostureScore()
+	{
+		float bodyAngle = RagDollController.GetBodyAngleFromLevel();
+		float postureFactor = Mathf.Max(0f, 1f - (bodyAngle / 90f));
+		CumulativePostureScore += postureFactor;
+		PostureSampleCount++;
 	}
 
 	private void OnRagDollStatusUpdate()
@@ -50,23 +65,25 @@ public class NeuralTrainer : MonoBehaviour
 		{
 			score *= 0.5f;
 		}
-		return score;
 
-		//--FINAL TRAINING SCORE--
+		float averagePostureScore = 1f;
+		if (PostureSampleCount > 0)
+		{
+			averagePostureScore = CumulativePostureScore / PostureSampleCount;
+		}
+		
+		score *= averagePostureScore;
+		
+		// Distance is irrelevant for now
 		// float distanceToTarget = Vector3.Distance(
 		// 	RagDollController.GetBodyPosition(),
 		// 	RagDollController.WalkTarget.transform.position);
 		//
-		// // 1. Weight distance higher so movement matters
-		// float distanceScore = Mathf.Max(0f, (30f - distanceToTarget) * 0.5f);
+		// float distanceScoreFactor = 0.1f;
+		// float distanceScore = Mathf.Max(0f, (30f - distanceToTarget) * distanceScoreFactor);
 		//
-		// // 2. Keep standing bonus, but cap it or reduce its weight
-		// float standingBonus = Fallen ? 0f : Mathf.Min(StandingTimer, 5f);
-		//
-		// // 3. Optional: Penalize falling to discourage early collapse
-		// float fallPenalty = Fallen ? -5f : 0f;
-		//
-		// return distanceScore + standingBonus + fallPenalty;
+		// return score + distanceScore;
+		return score;
 	}
 
 	private void StartIteration()
