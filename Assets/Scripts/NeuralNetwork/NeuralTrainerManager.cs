@@ -37,6 +37,8 @@ public class NeuralTrainerManager : MonoBehaviour
 	// Multithreading support
 	private System.Threading.Tasks.Task<NeuralNetworkParallelProcessor.NetworkProcessingResult[]> PendingProcessingTask;
 	private List<NeuralNetworkParallelProcessor.NetworkProcessingResult> CurrentGenerationResults;
+	
+	private GameTimer WalkingDestinationTimer;
 
 	private void Awake()
 	{
@@ -46,6 +48,7 @@ public class NeuralTrainerManager : MonoBehaviour
 	private void Start()
 	{
 		InitAndStartIteration();
+		SetWalkingDestinationTimer();
 	}
 
 	public void InitAndStartIteration()
@@ -66,6 +69,12 @@ public class NeuralTrainerManager : MonoBehaviour
 		IterationCount = TrainingNeuralNetwork.GetIterationCount();
 
 		StartIteration(true);
+	}
+
+	private void SetWalkingDestinationTimer()
+	{
+		WalkingDestinationTimer = new GameTimer(1, loop: true);
+		WalkingDestinationTimer.OnComplete += SetWalkDestinationRandomPosition;
 	}
 
 	private void Update()
@@ -147,7 +156,16 @@ public class NeuralTrainerManager : MonoBehaviour
 
 	private void SpawnDestination()
 	{
+		if (WalkingDestinationInstance != null)
+		{
+			Destroy(WalkingDestinationInstance);
+		}
 		WalkingDestinationInstance = Instantiate(WalkingDestinationPrefab, GetRandomWalkTargetPosition(StartPosition), Quaternion.identity);
+	}
+
+	private void SetWalkDestinationRandomPosition()
+	{
+		WalkingDestinationInstance.gameObject.transform.position = GetRandomWalkTargetPosition(StartPosition);
 	}
 
 	public GameObject SpawnRagDollAndAddToGeneration(Vector3 position, Quaternion rotation)
