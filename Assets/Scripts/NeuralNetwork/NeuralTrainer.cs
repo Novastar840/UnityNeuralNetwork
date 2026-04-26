@@ -94,4 +94,12 @@ public class NeuralTrainer : MonoBehaviour
 	{
 		return CalculateScore();
 	}
+	
+	private void OnDestroy()
+    {
+        if (RagDollController != null)
+            RagDollController.OnRagDollStatusUpdate -= OnRagDollStatusUpdate;
+        if (NeuralTrainerManager.Singleton != null)
+            NeuralTrainerManager.Singleton.OnIterationStartDelegate -= StartIteration;
+    }
 }
